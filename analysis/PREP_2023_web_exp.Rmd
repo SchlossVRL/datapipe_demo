@@ -1,0 +1,43 @@
+---
+title: "PREP_2023_web_exp"
+author: "Kushin Mukherjee"
+date: "2023-07-12"
+output: html_document
+---
+```{r}
+library(tidyverse)
+```
+
+Reading in data
+```{r}
+### make sure you're in the analysis directory
+### list out all files in the directory that end in csv.
+print(list.files('.', pattern = "\\.csv$"))
+data_files <- list.files('.', pattern = "\\.csv$")
+
+exp_df<-data.frame() ## create an empty dataframe
+for (this_file in data_files){ ## loop through all the participant data files
+  this_df<-read.csv(this_file) ## read in each participant's data file as a dataframe
+  exp_df<- rbind(exp_df,this_df) ## append the dataframe to the main dataframe
+}
+View(exp_df)
+```
+
+
+Visualization
+```{r}
+exp_df$rt<- as.numeric(exp_df$rt)
+print(exp_df%>%filter(trial_type=='image-keyboard-response')%>%group_by(stimType)%>%summarize(mean_rt= mean(rt)))
+
+mean_df<-exp_df%>%filter(trial_type=='image-keyboard-response')%>%group_by(stimType)%>%summarize(mean_rt= mean(rt))
+
+ggplot(data=mean_df,  aes(x=stimType, y=mean_rt, fill=stimType))+geom_bar(stat='identity')
+
+
+linear_mod_df <- exp_df%>%filter(trial_type=='image-keyboard-response')
+
+summary(lm(rt~stimType,data=linear_mod_df))
+
+
+```
+
